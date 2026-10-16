@@ -22,3 +22,14 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Memperbaiki foto kedua agar terlihat utuh */
+.photo-card:nth-child(2) img {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
