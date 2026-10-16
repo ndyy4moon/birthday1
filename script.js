@@ -1,18 +1,25 @@
-/* ========================================
-   BIRTHDAY WEBSITE - SCRIPT.JS
-   ======================================== */
+/* =========================================
+   BIRTHDAY WEBSITE - NADYA 💙
+   ========================================= */
 
-// Mengambil elemen dari HTML
+// Mengambil elemen HTML
 const sky = document.getElementById("sky");
+
 const musicToggle = document.getElementById("musicToggle");
 const musicLabel = document.getElementById("musicLabel");
 const birthdayMusic = document.getElementById("birthdayMusic");
 
 const letterModal = document.getElementById("letterModal");
+const openLetterButton = document.getElementById("openLetter");
+const closeLetterButton = document.getElementById("closeLetter");
 
-// ========================================
-// 1. ANIMASI BINTANG DAN HATI
-// ========================================
+const surpriseButton = document.getElementById("surpriseButton");
+const surpriseMessage = document.getElementById("surpriseMessage");
+
+
+// =========================================
+// 1. ANIMASI BINTANG DAN HATI ✨
+// =========================================
 
 function createFloatingElement() {
   if (!sky) return;
@@ -20,13 +27,17 @@ function createFloatingElement() {
   const element = document.createElement("span");
   const isHeart = Math.random() > 0.5;
 
-  element.className = isHeart ? "floating-heart" : "floating-star";
+  element.className = isHeart
+    ? "floating-heart"
+    : "floating-star";
+
   element.textContent = isHeart ? "♥" : "✦";
 
   element.style.left = Math.random() * 100 + "%";
   element.style.animationDuration =
     Math.random() * 5 + 5 + "s";
-  element.style.opacity = Math.random() * 0.6 + 0.3;
+  element.style.opacity =
+    Math.random() * 0.6 + 0.3;
   element.style.fontSize =
     Math.random() * 14 + 10 + "px";
 
@@ -37,33 +48,56 @@ function createFloatingElement() {
   }, 10000);
 }
 
-setInterval(createFloatingElement, 400);
+if (sky) {
+  setInterval(createFloatingElement, 400);
+}
 
 
-// ========================================
-// 2. MUSIK ULANG TAHUN DARI FILE MP3
-// ========================================
+// =========================================
+// 2. MUSIK ASLI DARI FILE MP3 🎵
+// =========================================
 
 let musicPlaying = false;
 
-if (musicToggle && birthdayMusic && musicLabel) {
+if (musicToggle && musicLabel && birthdayMusic) {
+  // Pastikan musik tidak otomatis berjalan
+  birthdayMusic.pause();
+  birthdayMusic.currentTime = 0;
+
+  musicLabel.textContent = "Putar musik";
+
   musicToggle.addEventListener("click", async () => {
-    try {
-      if (!musicPlaying) {
+    if (birthdayMusic.paused) {
+      try {
         await birthdayMusic.play();
 
         musicPlaying = true;
         musicLabel.textContent = "Jeda musik";
-      } else {
-        birthdayMusic.pause();
-
+      } catch (error) {
         musicPlaying = false;
-        musicLabel.textContent = "Putar musik";
+        musicLabel.textContent = "Gagal memutar musik";
+
+        console.error("MP3 gagal diputar:", error);
+        alert(
+          "Musik belum bisa diputar. Coba periksa file laguultah.mp3."
+        );
       }
-    } catch (error) {
-      musicLabel.textContent = "Musik gagal diputar";
-      console.error("Musik gagal diputar:", error);
+    } else {
+      birthdayMusic.pause();
+
+      musicPlaying = false;
+      musicLabel.textContent = "Putar musik";
     }
+  });
+
+  birthdayMusic.addEventListener("play", () => {
+    musicPlaying = true;
+    musicLabel.textContent = "Jeda musik";
+  });
+
+  birthdayMusic.addEventListener("pause", () => {
+    musicPlaying = false;
+    musicLabel.textContent = "Putar musik";
   });
 
   birthdayMusic.addEventListener("ended", () => {
@@ -71,57 +105,55 @@ if (musicToggle && birthdayMusic && musicLabel) {
     musicLabel.textContent = "Putar musik";
   });
 
-  birthdayMusic.addEventListener("pause", () => {
-    if (musicPlaying && birthdayMusic.ended) {
-      musicPlaying = false;
-      musicLabel.textContent = "Putar musik";
-    }
+  birthdayMusic.addEventListener("error", () => {
+    musicPlaying = false;
+    musicLabel.textContent = "Musik tidak tersedia";
+    console.error(
+      "File laguultah.mp3 tidak berhasil dimuat."
+    );
   });
 }
 
 
-// ========================================
-// 3. MODAL SURAT ULANG TAHUN
-// ========================================
+// =========================================
+// 3. SURAT ULANG TAHUN 💌
+// =========================================
 
 function openLetter() {
-  if (letterModal) {
-    letterModal.classList.add("active");
-    letterModal.style.display = "flex";
-  }
+  if (!letterModal) return;
+
+  letterModal.hidden = false;
+  letterModal.classList.add("active");
 }
 
 function closeLetter() {
-  if (letterModal) {
-    letterModal.classList.remove("active");
-    letterModal.style.display = "none";
-  }
-}
+  if (!letterModal) return;
 
-// Tombol untuk membuka surat
-const openLetterButton = document.getElementById("openLetter");
+  letterModal.classList.remove("active");
+  letterModal.hidden = true;
+}
 
 if (openLetterButton) {
   openLetterButton.addEventListener("click", openLetter);
 }
 
-// Tombol untuk menutup surat
-const closeLetterButton = document.getElementById("closeLetter");
-
 if (closeLetterButton) {
   closeLetterButton.addEventListener("click", closeLetter);
 }
 
-// Menutup surat saat area luar diklik
+// Tutup surat jika area luar surat diklik
 if (letterModal) {
   letterModal.addEventListener("click", (event) => {
-    if (event.target === letterModal) {
+    if (
+      event.target === letterModal ||
+      event.target.closest('[data-close="true"]')
+    ) {
       closeLetter();
     }
   });
 }
 
-// Menutup surat dengan tombol Escape
+// Tutup surat dengan tombol Escape
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     closeLetter();
@@ -129,21 +161,31 @@ document.addEventListener("keydown", (event) => {
 });
 
 
-// ========================================
-// 4. TOMBOL KEJUTAN
-// ========================================
+// =========================================
+// 4. TOMBOL KEJUTAN 🎁
+// =========================================
 
-const surpriseButton = document.getElementById("surpriseButton");
-const surpriseMessage = document.getElementById("surpriseMessage");
+let surpriseOpened = false;
 
 if (surpriseButton && surpriseMessage) {
-  surpriseButton.addEventListener("click", () => {
-    surpriseMessage.classList.toggle("show");
+  surpriseMessage.textContent = "";
+  surpriseMessage.classList.remove("show");
 
-    if (surpriseMessage.classList.contains("show")) {
+  surpriseButton.addEventListener("click", () => {
+    surpriseOpened = !surpriseOpened;
+
+    if (surpriseOpened) {
+      surpriseMessage.textContent =
+        "Selamat ulang tahun, Nadya! 💙 Semoga selalu sehat, bahagia, semua impianmu tercapai, dan selalu dikelilingi orang-orang yang sayang sama kamu. Jangan lupa senyum hari ini! 🎂🩵";
+
+      surpriseMessage.classList.add("show");
       surpriseButton.textContent = "Tutup Kejutan 💗";
     } else {
-      surpriseButton.textContent = "Buka Kejutan 🎁";
+      surpriseMessage.textContent = "";
+      surpriseMessage.classList.remove("show");
+      surpriseButton.textContent = "Aku siap! ✨";
     }
   });
 }
+
+console.log("Birthday website berhasil dimuat! 💙");
